@@ -3,8 +3,6 @@ import { FatalError } from "workflow";
 import { parseError } from "@/lib/error";
 import { addPRComment } from "@/lib/steps/add-pr-comment";
 import { checkPushAccess } from "@/lib/steps/check-push-access";
-import { checkoutBranch } from "@/lib/steps/checkout-branch";
-import { cloneRepo } from "@/lib/steps/clone-repo";
 import { commitAndPush } from "@/lib/steps/commit-and-push";
 import { configureGit } from "@/lib/steps/configure-git";
 import { createSandbox } from "@/lib/steps/create-sandbox";
@@ -73,11 +71,8 @@ Please ensure the OpenReview app has access to this repository and branch.
 const prepareSandbox = async (
   sandboxId: string,
   repoFullName: string,
-  prBranch: string,
   token: string
 ): Promise<void> => {
-  await cloneRepo(sandboxId, repoFullName, token);
-  await checkoutBranch(sandboxId, prBranch);
   await installDependencies(sandboxId);
   await configureGit(sandboxId, repoFullName, token);
   await extendSandbox(sandboxId);
@@ -103,7 +98,7 @@ const runSandboxAgent = async (
   token: string,
   comment: string
 ): Promise<void> => {
-  await prepareSandbox(sandboxId, repoFullName, prBranch, token);
+  await prepareSandbox(sandboxId, repoFullName, token);
 
   const diff = await getDiff(sandboxId, baseBranch);
   const agentResult = await runAgent(sandboxId, diff, comment);
@@ -130,7 +125,7 @@ const executeWorkflow = async (params: WorkflowParams): Promise<void> => {
   const { baseBranch, comment, prBranch, prNumber, repoFullName } = params;
 
   const token = await getGitHubToken();
-  const sandboxId = await createSandbox();
+  const sandboxId = await createSandbox(repoFullName, token, prBranch);
 
   try {
     await runSandboxAgent(
