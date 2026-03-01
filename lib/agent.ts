@@ -1,4 +1,5 @@
 import type { Sandbox } from "@vercel/sandbox";
+import type { StopCondition, ToolSet } from "ai";
 import { ToolLoopAgent, stepCountIs, tool } from "ai";
 import { createBashTool } from "bash-tool";
 import { z } from "zod";
@@ -44,6 +45,18 @@ Based on the user's request, decide what to do. Your capabilities include:
 {{DIFF}}
 \`\`\``;
 
+const MAX_TOOL_RESULT_LENGTH = 10_000;
+const MAX_TOTAL_TOKENS = 200_000;
+
+const budgetExceeded: StopCondition<ToolSet> = ({ steps }) => {
+  const totalTokens = steps.reduce((sum, step) => {
+    return (
+      sum + (step.usage.inputTokens ?? 0) + (step.usage.outputTokens ?? 0)
+    );
+  }, 0);
+  return totalTokens > MAX_TOTAL_TOKENS;
+};
+
 const createReplyTool = (threadId: string) => {
   const adapter = bot.getAdapter("github");
 
@@ -68,9 +81,45 @@ export const createAgent = async (
   const { tools: bashTools } = await createBashTool({ sandbox });
 
   return new ToolLoopAgent({
+    experimental_onToolCallFinish: ({ toolCall, durationMs, success }) => {
+      const status = success ? "ok" : "error";
+      console.log(
+        `[agent] tool ${toolCall.toolName} ${status} (${durationMs}ms)`
+      );
+    },
     instructions: instructions.replace("{{DIFF}}", diff),
     model: "anthropic/claude-sonnet-4.6",
-    stopWhen: stepCountIs(20),
+    onStepFinish: ({ stepNumber, usage }) => {
+      console.log(
+        `[agent] step ${stepNumber}: ${usage.inputTokens ?? 0} in / ${usage.outputTokens ?? 0} out`
+      );
+    },
+    prepareStep: ({ messages }) => {
+      const trimmed = messages.map((msg) => {
+        if (msg.role !== "tool" || !Array.isArray(msg.content)) {
+          return msg;
+        }
+
+        return {
+          ...msg,
+          content: msg.content.map((part) => {
+            const text = JSON.stringify(part.result);
+
+            if (text.length <= MAX_TOOL_RESULT_LENGTH) {
+              return part;
+            }
+
+            return {
+              ...part,
+              result: `${text.slice(0, MAX_TOOL_RESULT_LENGTH)}\n\n... (truncated ${text.length - MAX_TOOL_RESULT_LENGTH} chars)`,
+            };
+          }),
+        };
+      });
+
+      return { messages: trimmed };
+    },
+    stopWhen: [stepCountIs(20), budgetExceeded],
     tools: {
       ...bashTools,
       reply: createReplyTool(threadId),
