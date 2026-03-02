@@ -48,7 +48,7 @@ export const bot = new Chat({
       botUserId: appInfo.botUserId,
       installationId: env.GITHUB_APP_INSTALLATION_ID,
       privateKey: env.GITHUB_APP_PRIVATE_KEY.replaceAll("\\n", "\n"),
-      userName: `${appInfo.slug}[bot]`,
+      userName: appInfo.slug,
       webhookSecret: env.GITHUB_APP_WEBHOOK_SECRET,
     }),
   },
