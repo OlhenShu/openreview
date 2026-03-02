@@ -2,7 +2,7 @@ import { Sandbox } from "@vercel/sandbox";
 import { tool } from "ai";
 import { z } from "zod";
 
-const SANDBOX_CWD = "./workspace";
+const SANDBOX_CWD = ".";
 
 const readFileStep = async (
   sandboxId: string,
