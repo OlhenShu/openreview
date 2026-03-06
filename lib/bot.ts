@@ -41,6 +41,43 @@ const state = env.REDIS_URL
 
 let botInstance: Chat | null = null;
 
+const handleMention = async (thread: Thread, message: Message) => {
+  await thread.adapter.addReaction(thread.id, message.id, emoji.eyes);
+
+  const messages = await collectMessages(thread);
+  const raw = message.raw as GitHubRawMessage;
+
+  const repoFullName = raw.repository.full_name;
+  const { prNumber } = raw;
+
+  const octokit = await getInstallationOctokit();
+  const [owner, repo] = repoFullName.split("/");
+
+  const { data: pr } = await octokit.rest.pulls.get({
+    owner,
+    pull_number: prNumber,
+    repo,
+  });
+
+  await thread.setState({
+    baseBranch: pr.base.ref,
+    prBranch: pr.head.ref,
+    prNumber,
+    repoFullName,
+  } satisfies ThreadState);
+
+  await start(botWorkflow, [
+    {
+      baseBranch: pr.base.ref,
+      messages,
+      prBranch: pr.head.ref,
+      prNumber,
+      repoFullName,
+      threadId: thread.id,
+    } satisfies WorkflowParams,
+  ]);
+};
+
 const initBot = async (): Promise<Chat> => {
   if (botInstance) {
     return botInstance;
@@ -119,40 +156,3 @@ const initBot = async (): Promise<Chat> => {
 };
 
 export const getBot = (): Promise<Chat> => initBot();
-
-const handleMention = async (thread: Thread, message: Message) => {
-  await thread.adapter.addReaction(thread.id, message.id, emoji.eyes);
-
-  const messages = await collectMessages(thread);
-  const raw = message.raw as GitHubRawMessage;
-
-  const repoFullName = raw.repository.full_name;
-  const { prNumber } = raw;
-
-  const octokit = await getInstallationOctokit();
-  const [owner, repo] = repoFullName.split("/");
-
-  const { data: pr } = await octokit.rest.pulls.get({
-    owner,
-    pull_number: prNumber,
-    repo,
-  });
-
-  await thread.setState({
-    baseBranch: pr.base.ref,
-    prBranch: pr.head.ref,
-    prNumber,
-    repoFullName,
-  } satisfies ThreadState);
-
-  await start(botWorkflow, [
-    {
-      baseBranch: pr.base.ref,
-      messages,
-      prBranch: pr.head.ref,
-      prNumber,
-      repoFullName,
-      threadId: thread.id,
-    } satisfies WorkflowParams,
-  ]);
-};

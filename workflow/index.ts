@@ -31,8 +31,14 @@ export interface WorkflowParams {
 export const botWorkflow = async (params: WorkflowParams): Promise<void> => {
   "use workflow";
 
-  const { baseBranch, messages, prBranch, prNumber, repoFullName, threadId } =
-    params;
+  const {
+    baseBranch: _baseBranch,
+    messages,
+    prBranch,
+    prNumber,
+    repoFullName,
+    threadId,
+  } = params;
 
   const pushAccess = await checkPushAccess(repoFullName, prBranch);
 

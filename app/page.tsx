@@ -31,7 +31,8 @@ const features = [
 
 const skills = [
   {
-    description: "File conventions, RSC boundaries, data patterns, async APIs, metadata, error handling, route handlers, image/font optimization",
+    description:
+      "File conventions, RSC boundaries, data patterns, async APIs, metadata, error handling, route handlers, image/font optimization",
     name: "Next.js Best Practices",
   },
   {
@@ -39,11 +40,13 @@ const skills = [
     name: "Next.js Cache Components",
   },
   {
-    description: "Upgrade Next.js following official migration guides and codemods",
+    description:
+      "Upgrade Next.js following official migration guides and codemods",
     name: "Next.js Upgrade",
   },
   {
-    description: "React composition patterns that scale for component refactoring",
+    description:
+      "React composition patterns that scale for component refactoring",
     name: "Composition Patterns",
   },
   {
@@ -51,11 +54,13 @@ const skills = [
     name: "React Best Practices",
   },
   {
-    description: "React Native and Expo best practices for performant mobile apps",
+    description:
+      "React Native and Expo best practices for performant mobile apps",
     name: "React Native",
   },
   {
-    description: "Review UI code for Web Interface Guidelines and accessibility compliance",
+    description:
+      "Review UI code for Web Interface Guidelines and accessibility compliance",
     name: "Web Design Guidelines",
   },
 ];

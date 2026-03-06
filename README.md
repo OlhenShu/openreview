@@ -87,15 +87,15 @@ OpenReview uses a progressive skill system — the agent only loads specialized 
 
 ### Built-in skills
 
-| Skill | Description |
-| --- | --- |
-| `next-best-practices` | File conventions, RSC boundaries, data patterns, async APIs, metadata, error handling |
-| `next-cache-components` | PPR, `use cache` directive, `cacheLife`, `cacheTag`, `updateTag` |
-| `next-upgrade` | Upgrade Next.js following official migration guides and codemods |
-| `vercel-composition-patterns` | React composition patterns that scale for component refactoring |
-| `vercel-react-best-practices` | React and Next.js performance optimization guidelines |
-| `vercel-react-native-skills` | React Native and Expo best practices for performant mobile apps |
-| `web-design-guidelines` | Review UI code for Web Interface Guidelines and accessibility compliance |
+| Skill                         | Description                                                                           |
+| ----------------------------- | ------------------------------------------------------------------------------------- |
+| `next-best-practices`         | File conventions, RSC boundaries, data patterns, async APIs, metadata, error handling |
+| `next-cache-components`       | PPR, `use cache` directive, `cacheLife`, `cacheTag`, `updateTag`                      |
+| `next-upgrade`                | Upgrade Next.js following official migration guides and codemods                      |
+| `vercel-composition-patterns` | React composition patterns that scale for component refactoring                       |
+| `vercel-react-best-practices` | React and Next.js performance optimization guidelines                                 |
+| `vercel-react-native-skills`  | React Native and Expo best practices for performant mobile apps                       |
+| `web-design-guidelines`       | Review UI code for Web Interface Guidelines and accessibility compliance              |
 
 ### Adding custom skills
 
