@@ -50,7 +50,14 @@ const handleMention = async (thread: Thread, message: Message) => {
   const repoFullName = raw.repository.full_name;
   const { prNumber } = raw;
 
-  const octokit = await getInstallationOctokit();
+  const installationId =
+    (raw as any)?.installation?.id ?? (raw as any)?.installationId;
+
+  if (!installationId) {
+    throw new Error("Missing installation id in GitHub webhook payload");
+  }
+
+  const octokit = await getInstallationOctokit(Number(installationId));
   const [owner, repo] = repoFullName.split("/");
 
   const { data: pr } = await octokit.rest.pulls.get({
@@ -83,11 +90,11 @@ const initBot = async (): Promise<Chat> => {
     return botInstance;
   }
 
-if (
-  !env.GITHUB_APP_ID ||
-  !env.GITHUB_APP_PRIVATE_KEY ||
-  !env.GITHUB_APP_WEBHOOK_SECRET
-) {
+  if (
+    !env.GITHUB_APP_ID ||
+    !env.GITHUB_APP_PRIVATE_KEY ||
+    !env.GITHUB_APP_WEBHOOK_SECRET
+  ) {
     throw new Error("Missing required GitHub App environment variables");
   }
 
@@ -96,12 +103,12 @@ if (
   botInstance = new Chat({
     adapters: {
       github: createGitHubAdapter({
-  appId: env.GITHUB_APP_ID,
-  botUserId: appInfo.botUserId,
-  privateKey: env.GITHUB_APP_PRIVATE_KEY.replaceAll("\\n", "\n"),
-  userName: appInfo.slug,
-  webhookSecret: env.GITHUB_APP_WEBHOOK_SECRET,
-}),
+        appId: env.GITHUB_APP_ID,
+        botUserId: appInfo.botUserId,
+        privateKey: env.GITHUB_APP_PRIVATE_KEY.replaceAll("\\n", "\n"),
+        userName: appInfo.slug,
+        webhookSecret: env.GITHUB_APP_WEBHOOK_SECRET,
+      }),
     },
     logger: "debug",
     state,
