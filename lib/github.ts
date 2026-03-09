@@ -27,7 +27,9 @@ export const getGitHubApp = (): App => {
   return app;
 };
 
-export const getInstallationOctokit = async (installationId: number) => {
+export const getInstallationOctokit = async (
+  installationId: number,
+): Promise<Octokit> => {
   const app = getGitHubApp();
   return app.getInstallationOctokit(installationId);
 };
@@ -36,11 +38,13 @@ export const getAppInfo = async (): Promise<{
   botUserId: number;
   slug: string;
 }> => {
-  const octokit = await getInstallationOctokit();
-  const { data: appData } = (await octokit.request("GET /app")) as {
+  const app = getGitHubApp();
+
+  const { data: appData } = (await app.octokit.request("GET /app")) as {
     data: { slug: string };
   };
-  const { data: botUser } = await octokit.request("GET /users/{username}", {
+
+  const { data: botUser } = await app.octokit.request("GET /users/{username}", {
     username: `${appData.slug}[bot]`,
   });
 
