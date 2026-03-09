@@ -27,13 +27,9 @@ export const getGitHubApp = (): App => {
   return app;
 };
 
-export const getInstallationOctokit = (): Promise<Octokit> => {
-  if (!env.GITHUB_APP_INSTALLATION_ID) {
-    throw new Error("Missing GITHUB_APP_INSTALLATION_ID environment variable");
-  }
-
-  const githubApp = getGitHubApp();
-  return githubApp.getInstallationOctokit(env.GITHUB_APP_INSTALLATION_ID);
+export const getInstallationOctokit = async (installationId: number) => {
+  const app = getGitHubApp();
+  return app.getInstallationOctokit(installationId);
 };
 
 export const getAppInfo = async (): Promise<{
