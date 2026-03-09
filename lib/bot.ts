@@ -83,12 +83,11 @@ const initBot = async (): Promise<Chat> => {
     return botInstance;
   }
 
-  if (
-    !env.GITHUB_APP_ID ||
-    !env.GITHUB_APP_INSTALLATION_ID ||
-    !env.GITHUB_APP_PRIVATE_KEY ||
-    !env.GITHUB_APP_WEBHOOK_SECRET
-  ) {
+if (
+  !env.GITHUB_APP_ID ||
+  !env.GITHUB_APP_PRIVATE_KEY ||
+  !env.GITHUB_APP_WEBHOOK_SECRET
+) {
     throw new Error("Missing required GitHub App environment variables");
   }
 
@@ -97,13 +96,12 @@ const initBot = async (): Promise<Chat> => {
   botInstance = new Chat({
     adapters: {
       github: createGitHubAdapter({
-        appId: env.GITHUB_APP_ID,
-        botUserId: appInfo.botUserId,
-        installationId: env.GITHUB_APP_INSTALLATION_ID,
-        privateKey: env.GITHUB_APP_PRIVATE_KEY.replaceAll("\\n", "\n"),
-        userName: appInfo.slug,
-        webhookSecret: env.GITHUB_APP_WEBHOOK_SECRET,
-      }),
+  appId: env.GITHUB_APP_ID,
+  botUserId: appInfo.botUserId,
+  privateKey: env.GITHUB_APP_PRIVATE_KEY.replaceAll("\\n", "\n"),
+  userName: appInfo.slug,
+  webhookSecret: env.GITHUB_APP_WEBHOOK_SECRET,
+}),
     },
     logger: "debug",
     state,
